@@ -1,0 +1,28 @@
+﻿Installing Python 3.9 on Debian 10 
+
+    1. Install the dependencies necessary to build Python:
+sudo apt update
+
+sudo apt install lzma lzma-dev and liblzma-dev
+sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev
+
+wget https://www.python.org/ftp/python/3.9.1/Python-3.9.1.tgz
+Once the download is complete, extract the gzipped archive :
+tar -xvf Python-3.9.1.tgz
+Navigate to the Python source directory and execute the configure script:
+cd Python-3.9.1
+./configure –enable-optimizations
+sudo make -j 2
+sudo make altinstall
+python3.9 --version
+The output should show the Python version:
+Python 3.9.11
+
+which python3.9
+/usr/local/bin/python3.9
+which python3
+/usr/bin/python3
+ln -sf ruta39 ruta3
+
+    • Open /usr/bin/lsb_release (Make sure you use sudo or open as root!) 
+    • Edit the first line to be #! /usr/bin/python2.7
