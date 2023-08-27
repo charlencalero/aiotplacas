@@ -1,0 +1,34 @@
+﻿Installing Python 3.9 on Debian 10 / tinker edge t / coral board
+
+sudo apt update
+
+sudo apt install lzma lzma-dev and liblzma-dev
+sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev
+
+sudo wget https://www.python.org/ftp/python/3.9.1/Python-3.9.1.tgz
+
+sudo tar -xvf Python-3.9.1.tgz
+
+cd Python-3.9.1
+
+./configure -enable-optimizations
+
+sudo make -j 2
+
+sudo make altinstall
+
+python3.9 --version
+
+
+which python3.9
+#/usr/local/bin/python3.9
+which python3
+#/usr/bin/python3
+
+sudo ln -sf /usr/local/bin/python3.9 /usr/bin/python3
+
+sudo nano /usr/bin/lsb_release 
+
+Edit the first line to be:
+
+ #! /usr/bin/python3.9

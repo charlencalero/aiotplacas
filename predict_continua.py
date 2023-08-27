@@ -1,14 +1,11 @@
 import easyocr
 import sys
-import os
-# Configurar CUDA_VISIBLE_DEVICES para forzar la ejecución en la CPU
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
-
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-from object_detection import ObjectDetection
+from object_detectionv1 import ObjectDetection
 import cv2
+
 import time
 import base64
 import requests
@@ -16,6 +13,7 @@ import requests
 
 from time import sleep
 import socket
+import os
 import datetime
 
 
@@ -23,7 +21,11 @@ import datetime
 idioma = 'en'  # 'es' para español, 'en' para inglés, etc. Consulta la documentación para más idiomas.
 
 # Cargar el modelo de EasyOCR para el idioma específico
-lector = easyocr.Reader([idioma])
+lector = easyocr.Reader([idioma], gpu=False)
+
+# Configurar el modelo para que excluya símbolos y conserve letras y números
+listablanca= "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 
 
 MODEL_FILENAME = 'model.pb'
@@ -62,6 +64,8 @@ def dibujar_cuadro(imagen, bounding_box,codi, color=(0, 255, 0), grosor=2):
     cv2.imwrite('original/o_'+ str(codi) +'.jpg', imagen)
     cv2.rectangle(imagen, (left, top), (right, bottom), color, grosor)
     
+    cv2.imshow('captura', imagen)
+    
     #con cuadro
     cv2.imwrite('inferencia/i_'+ str(codi) +'.jpg', imagen)
        
@@ -70,20 +74,25 @@ def dibujar_cuadro(imagen, bounding_box,codi, color=(0, 255, 0), grosor=2):
     placa=''
     
     try:
-       resultado = lector.readtext(region_recortada)
-       cv2.imshow('placa', region_recortada)
-       for res in resultado:
-        placa = res[1]
-        print("######### placa ##########")
-        print(res[1])
-        print("##########################")
+        #LECTURA TESSERACT OCR
+        resultado = lector.readtext(region_recortada, allowlist=listablanca)
+        for res in resultado:
+         placa=(res[1])
+         
+         print("########## PLACA #########")
+         print(res[1])
+         print("##########################")
         
     except Exception as e:
-       # Manejo de la excepción, por ejemplo, mostrar el mensaje de error
-       print("Error en OCR:", e)
-       placa = "-"
-       
-		
+        # Manejo de la excepción, por ejemplo, mostrar el mensaje de error
+        print("Error en OCR:", e)
+        placa="-"
+        
+  
+    
+    
+  
+    
     #ENVIAR PLACA POR SERVICIO:
     
     if len(placa) > 0:
@@ -160,16 +169,12 @@ def main():
  
     while True:
         
-            c=c+1
-            
-            print('***INICIO***')
-            print(datetime.datetime.now().time())
+         
             
             # Capturar la imagen utilizando fswebcam
             capturar_imagen(imagen_temporal)
             
-            print('***CAPTURA***')
-            print(datetime.datetime.now().time())
+         
             
             # Leer la imagen desde el archivo
             frame = cv2.imread(imagen_temporal)
@@ -183,8 +188,7 @@ def main():
             # Predecir usando el modelo
             predictions = od_model.predict_image(preprocessed_image)
             
-            print('***PREDICCION***')
-            print(datetime.datetime.now().time())
+            print(predictions)
             
            # predictions = tf_model.predict_image(preprocessed_image)
             # Encontrar el resultado con la probabilidad máxima
@@ -206,8 +210,7 @@ def main():
 
             # Limpiar la memoria de video de OpenCV
             cv2.waitKey(1)
-            print('***FIN***')
-            print(datetime.datetime.now().time())
+        
             
             
             # Detener la ejecución si se presiona la tecla 'q'
